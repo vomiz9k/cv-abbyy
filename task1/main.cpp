@@ -79,7 +79,7 @@ private:
     это не особо пригодилось, думал сильно жизнь мне упростит
     */
 public:
-    static cv::Mat process(cv::Mat img) {
+    static cv::Mat process(cv::Mat& img) {
         for (int i = 2; i < img.rows - 2; ++i) {
             for (int j = i % 2 ? 3 : 2; j < img.cols - 2; j += 2) {
                 int delta_n = std::abs(C3 - C1) * 2 + std::abs(C4 - C2);
@@ -163,10 +163,16 @@ public:
     #undef everything
 };
 
+#include <iostream>
+
 int main(int argc, char* argv[]) {
     cv::Mat image = cv::imread(argv[1]);
 
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     auto result = PixelGrouping::process(image);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
+    auto sec_per_megapixel = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / image.rows / image.cols;
+    std::cout << sec_per_megapixel << std::endl;
     cv::imwrite("result.bmp", result);
 }
